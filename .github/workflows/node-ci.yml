@@ -1,0 +1,12 @@
+name: node CI
+on: push
+jobs:
+  code-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checking out
+        uses: actions/checkout@v3
+      - name: dependencies installation
+        run: npm ci
+      - name: linting
+        run: make lint
