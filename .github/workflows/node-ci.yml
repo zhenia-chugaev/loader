@@ -2,11 +2,16 @@ name: node CI
 on: push
 jobs:
   code-check:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: checking out
         uses: actions/checkout@v3
       - name: dependencies installation
         run: npm ci
-      - name: linting
-        run: make lint
+      - name: linting & testing
+        run: |
+          make lint
+          make test

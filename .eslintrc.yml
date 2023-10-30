@@ -9,3 +9,6 @@ parserOptions:
   sourceType: module
 rules:
   import/extensions: ['error', 'ignorePackages']
+  no-underscore-dangle: ['error', {
+    allow: ['__filename', '__dirname']
+  }]
