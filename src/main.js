@@ -14,12 +14,18 @@ const getFilename = (url) => {
 };
 
 const loadPage = (url, outDir = '.') => {
-  const filename = getFilename(url);
-  const filepath = path.resolve(process.cwd(), outDir, filename);
+  let filepath;
 
-  return axios.get(url)
+  const result = Promise.resolve()
+    .then(() => getFilename(url))
+    .then((filename) => {
+      filepath = path.resolve(process.cwd(), outDir, filename);
+    })
+    .then(() => axios.get(url))
     .then(({ data }) => fs.writeFile(filepath, data))
     .then(() => ({ filepath }));
+
+  return result;
 };
 
 export default loadPage;

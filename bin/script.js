@@ -14,7 +14,9 @@ program
   .allowExcessArguments(false);
 
 program.action((url, { output }) => {
-  loadPage(url, output).then(({ filepath }) => console.log(filepath));
+  loadPage(url, output)
+    .then(({ filepath }) => console.log(filepath))
+    .catch((err) => console.error(err.message));
 });
 
 program.parse(process.argv);
