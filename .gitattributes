@@ -1,1 +1,2 @@
 *.js text eol=lf
+__fixtures__/**/*.html text eol=lf

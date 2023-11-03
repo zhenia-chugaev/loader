@@ -29,7 +29,7 @@ const loadPage = (pageUrl, outDir = '.') => {
       $images.each((_, img) => {
         const $image = $(img);
         const imageName = getAssetName($image.prop('src'));
-        const imagePath = path.join(dirname, imageName);
+        const imagePath = path.posix.join(dirname, imageName);
         $image.attr('src', imagePath);
       });
 
