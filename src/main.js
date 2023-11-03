@@ -2,22 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import axios from 'axios';
 import { load } from 'cheerio';
+import loadAsset from './loadAsset.js';
 import { getName, getAssetName } from './getName.js';
-
-const loadImage = (imageUrl, outDir) => {
-  const options = {
-    responseType: 'arraybuffer',
-  };
-
-  const result = axios.get(imageUrl, options)
-    .then(({ data }) => {
-      const imageName = getAssetName(imageUrl);
-      const imagePath = path.join(outDir, imageName);
-      return fs.writeFile(imagePath, data);
-    });
-
-  return result;
-};
 
 const loadPage = (pageUrl, outDir = '.') => {
   let filepath;
@@ -51,7 +37,7 @@ const loadPage = (pageUrl, outDir = '.') => {
     })
     .then(() => fs.mkdir(assetsPath))
     .then(() => Promise.all(
-      imagesUrls.map((url) => loadImage(url, assetsPath)),
+      imagesUrls.map((url) => loadAsset(url, assetsPath)),
     ))
     .then(() => ({ filepath }));
 
