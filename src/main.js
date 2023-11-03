@@ -2,27 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import axios from 'axios';
 import { load } from 'cheerio';
-
-const regexp = /[^a-zA-Z0-9]/g;
-const sep = '-';
-
-const getName = (url, suffix = '') => {
-  const { hostname, pathname, search } = new URL(url);
-  const name = [
-    hostname,
-    pathname === '/' ? '' : pathname,
-    search,
-  ].join('').replaceAll(regexp, sep);
-  return `${name}${suffix}`;
-};
-
-const getAssetName = (url) => {
-  const { hostname, pathname } = new URL(url);
-  const basename = path.basename(pathname);
-  const dirname = path.dirname(pathname);
-  const name = [hostname, dirname].join('').replaceAll(regexp, sep);
-  return `${name}${sep}${basename}`;
-};
+import { getName, getAssetName } from './getName.js';
 
 const loadImage = (imageUrl, outDir) => {
   const options = {
