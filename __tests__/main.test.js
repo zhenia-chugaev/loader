@@ -2,18 +2,24 @@ import os from 'os';
 import fs from 'fs/promises';
 import path from 'path';
 import nock from 'nock';
+import { format } from 'prettier';
 import readFixture from '../utils/readFixture.js';
 import loadPage from '../src/main.js';
 
-const pageUrl = 'https://page-loader.hexlet.repl.co';
-
 nock.disableNetConnect();
 
-let html;
+let initialHtml;
+let finalHtml;
+let imageBuffer;
+
 let tmpDir;
 
 beforeAll(async () => {
-  html = await readFixture('index.html', 'utf-8');
+  [initialHtml, finalHtml, imageBuffer] = await Promise.all([
+    readFixture('initial.html', 'utf-8'),
+    readFixture('final.html', 'utf-8'),
+    readFixture('node.png'),
+  ]);
 });
 
 beforeEach(async () => {
@@ -21,25 +27,42 @@ beforeEach(async () => {
   tmpDir = await fs.mkdtemp(prefix);
 });
 
-it('saves the page', async () => {
-  const scope = nock(pageUrl);
-
-  scope.get('/').reply(200, html);
-
-  const { filepath } = await loadPage(pageUrl, tmpDir);
-  const data = await fs.readFile(filepath, 'utf-8');
-
-  expect(data).toBe(html);
-});
-
-it('forms the filepath correctly', async () => {
-  const scope = nock(pageUrl);
-  const pathname = '/courses';
-
-  scope.get(pathname).reply(200, html);
-
-  const result = await loadPage(new URL(pathname, pageUrl).toString(), tmpDir);
-  const filepath = path.join(tmpDir, 'page-loader-hexlet-repl-co-courses.html');
+it('returns object with filepath', async () => {
+  const url = 'https://page-loader.hexlet.repl.co';
+  const assetPathname = '/assets/images/nodejs.png';
+  nock(url)
+    .get('/')
+    .reply(200, initialHtml)
+    .get(assetPathname)
+    .reply(200, imageBuffer);
+  const result = await loadPage(url, tmpDir);
+  const filepath = path.join(tmpDir, 'page-loader-hexlet-repl-co.html');
 
   expect(result).toEqual({ filepath });
+});
+
+it('saves the page', async () => {
+  const url = 'https://ru.hexlet.io';
+  const pathname = '/node';
+  const assetPathname = '/assets/images/nodejs.png';
+  nock(url)
+    .get(pathname)
+    .reply(200, initialHtml)
+    .get(assetPathname)
+    .reply(200, imageBuffer);
+  const pageUrl = new URL(pathname, url).toString();
+  const { filepath } = await loadPage(pageUrl, tmpDir);
+  const rawHtml = await fs.readFile(filepath, 'utf-8');
+  const html = await format(rawHtml, { parser: 'html' });
+
+  expect(html).toBe(finalHtml);
+
+  const imagePath = path.join(
+    tmpDir,
+    'ru-hexlet-io-node_files',
+    'ru-hexlet-io-assets-images-nodejs.png',
+  );
+  const buffer = await fs.readFile(imagePath);
+
+  expect(buffer).toEqual(imageBuffer);
 });
