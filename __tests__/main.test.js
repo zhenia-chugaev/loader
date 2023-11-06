@@ -8,18 +8,48 @@ import loadPage from '../src/main.js';
 
 nock.disableNetConnect();
 
+const url = 'https://ru.hexlet.io';
+const pathname = '/node';
+const cssPathname = '/assets/style.css';
+const imagePathname = '/assets/images/nodejs.png';
+const jsPathname = '/packs/js/script.js';
+
+const pageUrl = new URL(pathname, url).toString();
+
 let initialHtml;
 let finalHtml;
 let imageBuffer;
+let cssBuffer;
+let jsBuffer;
 
 let tmpDir;
 
 beforeAll(async () => {
-  [initialHtml, finalHtml, imageBuffer] = await Promise.all([
+  [
+    initialHtml,
+    finalHtml,
+    imageBuffer,
+    cssBuffer,
+    jsBuffer,
+  ] = await Promise.all([
     readFixture('initial.html', 'utf-8'),
     readFixture('final.html', 'utf-8'),
     readFixture('node.png'),
+    readFixture('style.css'),
+    readFixture('script.js'),
   ]);
+});
+
+beforeEach(() => {
+  nock(url)
+    .get(pathname).times(2)
+    .reply(200, initialHtml)
+    .get(cssPathname)
+    .reply(200, cssBuffer)
+    .get(imagePathname)
+    .reply(200, imageBuffer)
+    .get(jsPathname)
+    .reply(200, jsBuffer);
 });
 
 beforeEach(async () => {
@@ -27,42 +57,29 @@ beforeEach(async () => {
   tmpDir = await fs.mkdtemp(prefix);
 });
 
-it('returns object with filepath', async () => {
-  const url = 'https://page-loader.hexlet.repl.co';
-  const assetPathname = '/assets/images/nodejs.png';
-  nock(url)
-    .get('/')
-    .reply(200, initialHtml)
-    .get(assetPathname)
-    .reply(200, imageBuffer);
-  const result = await loadPage(url, tmpDir);
-  const filepath = path.join(tmpDir, 'page-loader-hexlet-repl-co.html');
+it('saves the page', async () => {
+  const result = await loadPage(pageUrl, tmpDir);
+  const filepath = path.join(tmpDir, 'ru-hexlet-io-node.html');
 
   expect(result).toEqual({ filepath });
-});
 
-it('saves the page', async () => {
-  const url = 'https://ru.hexlet.io';
-  const pathname = '/node';
-  const assetPathname = '/assets/images/nodejs.png';
-  nock(url)
-    .get(pathname)
-    .reply(200, initialHtml)
-    .get(assetPathname)
-    .reply(200, imageBuffer);
-  const pageUrl = new URL(pathname, url).toString();
-  const { filepath } = await loadPage(pageUrl, tmpDir);
-  const rawHtml = await fs.readFile(filepath, 'utf-8');
-  const html = await format(rawHtml, { parser: 'html' });
+  const rawHtml = await fs.readFile(result.filepath, 'utf-8');
+  const html = await format(rawHtml, {
+    parser: 'html',
+    printWidth: 105,
+  });
 
   expect(html).toBe(finalHtml);
 
-  const imagePath = path.join(
-    tmpDir,
-    'ru-hexlet-io-node_files',
-    'ru-hexlet-io-assets-images-nodejs.png',
-  );
-  const buffer = await fs.readFile(imagePath);
+  const assetsDir = path.join(tmpDir, 'ru-hexlet-io-node_files');
+  const promises = await fs.readdir(assetsDir)
+    .map((assetPath) => fs.readFile(assetPath));
 
-  expect(buffer).toEqual(imageBuffer);
+  const assets = await Promise.all(promises);
+
+  expect(assets).toHaveLength(4);
+  expect(assets).toContainEqual(Buffer.from(initialHtml));
+  expect(assets).toContainEqual(imageBuffer);
+  expect(assets).toContainEqual(cssBuffer);
+  expect(assets).toContainEqual(jsBuffer);
 });
