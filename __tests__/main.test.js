@@ -72,8 +72,8 @@ it('saves the page', async () => {
   expect(html).toBe(finalHtml);
 
   const assetsDir = path.join(tmpDir, 'ru-hexlet-io-node_files');
-  const promises = await fs.readdir(assetsDir)
-    .map((assetPath) => fs.readFile(assetPath));
+  const promises = (await fs.readdir(assetsDir))
+    .map((assetName) => fs.readFile(path.join(assetsDir, assetName)));
 
   const assets = await Promise.all(promises);
 
