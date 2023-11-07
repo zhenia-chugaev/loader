@@ -17,7 +17,10 @@ const getAssetName = (url) => {
   const { hostname, pathname } = new URL(url);
   const basename = path.basename(pathname);
   const dirname = path.dirname(pathname);
-  const name = [hostname, dirname].join('').replaceAll(regexp, sep);
+  const name = [
+    hostname,
+    dirname === '/' ? '' : dirname,
+  ].join('').replaceAll(regexp, sep);
   return `${name}${sep}${basename}`;
 };
 
