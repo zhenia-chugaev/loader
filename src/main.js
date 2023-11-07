@@ -3,7 +3,7 @@ import path from 'path';
 import axios from 'axios';
 import { load } from 'cheerio';
 import loadAsset from './loadAsset.js';
-import { getName, getAssetName } from './getName.js';
+import getName from './getName.js';
 
 const loadPage = (pageUrl, outDir = '.') => {
   let filepath;
@@ -28,7 +28,7 @@ const loadPage = (pageUrl, outDir = '.') => {
 
       $images.each((_, img) => {
         const $image = $(img);
-        const imageName = getAssetName($image.prop('src'));
+        const imageName = getName($image.prop('src'));
         const imagePath = path.posix.join(dirname, imageName);
         $image.attr('src', imagePath);
       });

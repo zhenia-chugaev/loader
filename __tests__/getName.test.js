@@ -1,4 +1,4 @@
-import { getName, getAssetName } from '../src/getName.js';
+import getName from '../src/getName.js';
 
 test.each([
   ['https://example.org', 'example-org'],
@@ -21,6 +21,6 @@ test.each([
   ['https://example.com/index.html', 'example-com-index.html'],
   ['https://ru.hexlet.io/assets/local/icon.svg', 'ru-hexlet-io-assets-local-icon.svg'],
   ['http://domain.ru/docs/user-names.json', 'domain-ru-docs-user-names.json'],
-])('assets name construction', (url, expected) => {
-  expect(getAssetName(url)).toBe(expected);
+])('asset name construction', (url, expected) => {
+  expect(getName(url)).toBe(expected);
 });
