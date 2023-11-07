@@ -6,7 +6,7 @@ import getName from './getName.js';
 
 const loadAsset = (assetUrl, outDir, overrides = {}) => {
   const { pathname } = new URL(assetUrl);
-  const extension = path.extname(pathname);
+  const extension = path.extname(pathname) || '.html';
 
   const config = {
     ...getConfig(extension),
@@ -15,9 +15,9 @@ const loadAsset = (assetUrl, outDir, overrides = {}) => {
 
   const result = axios.get(assetUrl, config)
     .then(({ data }) => {
-      const imageName = getName(assetUrl);
-      const imagePath = path.join(outDir, imageName);
-      return fs.writeFile(imagePath, data);
+      const assetName = getName(assetUrl, extension);
+      const assetPath = path.join(outDir, assetName);
+      return fs.writeFile(assetPath, data);
     });
 
   return result;
