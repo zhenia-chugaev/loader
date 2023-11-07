@@ -15,50 +15,48 @@ const map = {
 const loadPage = (pageUrl, outDir = '.') => {
   const resolvedPath = path.resolve(process.cwd(), outDir);
 
-  let filepath;
-  let assetsPath;
+  const filename = getName(pageUrl, '.html');
+  const dirname = getName(pageUrl, '_files');
+
+  const filepath = path.join(resolvedPath, filename);
+  const assetsPath = path.join(resolvedPath, dirname);
+
   let assetsUrls;
 
   const result = axios.get(pageUrl)
     .then(({ data }) => {
       const $ = load(data, { baseURI: pageUrl });
 
-      const filename = getName(pageUrl, '.html');
-      filepath = path.join(resolvedPath, filename);
-
-      const dirname = getName(pageUrl, '_files');
-      assetsPath = path.join(resolvedPath, dirname);
-
-      const extractUrl = (el) => {
-        const $el = $(el);
-        const tagName = $el.prop('tagName');
-        return $el.prop(map[tagName]);
+      const getSource = (element) => {
+        const $element = $(element);
+        const tagName = $element.prop('tagName');
+        return $element.prop(map[tagName]);
       };
 
-      const insertUrl = (el, url) => {
-        const $el = $(el);
-        const tagName = $el.prop('tagName');
-        return $el.attr(map[tagName], url);
+      const setSource = (element, url) => {
+        const $element = $(element);
+        const tagName = $element.prop('tagName');
+        return $element.attr(map[tagName], url);
       };
 
       const $assets = $('img[src], link[href], script[src]')
         .filter((_, asset) => {
-          const assetUrl = extractUrl(asset);
+          const assetUrl = getSource(asset);
           const { origin } = new URL(pageUrl);
           return isLocalAsset(assetUrl, origin);
         });
 
       assetsUrls = $assets
-        .map((_, asset) => extractUrl(asset))
+        .map((_, asset) => getSource(asset))
         .toArray();
 
       $assets.each((_, asset) => {
-        const url = extractUrl(asset);
+        const url = getSource(asset);
         const { pathname } = new URL(url);
         const extension = path.extname(pathname) || '.html';
         const assetName = getName(url, extension);
         const assetPath = path.posix.join(dirname, assetName);
-        insertUrl(asset, assetPath);
+        setSource(asset, assetPath);
       });
 
       return fs.writeFile(filepath, $.html());
