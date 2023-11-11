@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import client from './httpClient.js';
+import log from './logger.js';
 import getConfig from './getConfig.js';
 import getName from './getName.js';
 
@@ -13,10 +14,14 @@ const loadAsset = (assetUrl, outDir, overrides = {}) => {
     ...overrides,
   };
 
+  log('loading asset from %s with %o', assetUrl, config);
+
   const result = client.get(assetUrl, config)
-    .then(({ data }) => {
+    .then(({ data, status }) => {
+      log('succeeded (%d, %s)', status, assetUrl);
       const assetName = getName(assetUrl, extension);
       const assetPath = path.join(outDir, assetName);
+      log('saving asset as %s', assetName);
       return fs.writeFile(assetPath, data);
     });
 

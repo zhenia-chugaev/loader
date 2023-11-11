@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { load } from 'cheerio';
 import client from './httpClient.js';
+import log from './logger.js';
 import loadAsset from './loadAsset.js';
 import isLocalAsset from './isLocalAsset.js';
 import getName from './getName.js';
@@ -23,8 +24,12 @@ const loadPage = (pageUrl, outDir = '.') => {
 
   let assetsUrls;
 
+  log('loading resource from %s', pageUrl);
+
   const result = client.get(pageUrl)
-    .then(({ data }) => {
+    .then(({ data, status }) => {
+      log('succeeded (%d, %s)', status, pageUrl);
+
       const $ = load(data, { baseURI: pageUrl });
 
       const getSource = (element) => {
@@ -59,9 +64,14 @@ const loadPage = (pageUrl, outDir = '.') => {
         setSource(asset, assetPath);
       });
 
+      log('saving processed html as %s', filename);
+
       return fs.writeFile(filepath, $.html());
     })
-    .then(() => fs.mkdir(assetsPath))
+    .then(() => {
+      log('creating assets folder (%s)', dirname);
+      return fs.mkdir(assetsPath);
+    })
     .then(() => Promise.all(
       assetsUrls.map((url) => loadAsset(url, assetsPath)),
     ))

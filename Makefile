@@ -1,3 +1,5 @@
+NS=page-loader
+
 prepare:
 	npm ci
 	npx husky install
@@ -11,6 +13,9 @@ lint:
 
 test:
 	npm run test
+
+debug:
+	DEBUG=${NS} npm run test
 
 coverage:
 	npx jest --coverage --coverage-provider=v8
