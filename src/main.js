@@ -13,6 +13,24 @@ const map = {
   SCRIPT: 'src',
 };
 
+const getSource = ($element) => {
+  const tagName = $element.prop('tagName');
+  return $element.prop(map[tagName]);
+};
+
+const setSource = ($element, url) => {
+  const tagName = $element.prop('tagName');
+  return $element.attr(map[tagName], url);
+};
+
+const getAssetPath = (url, dirname) => {
+  const { pathname } = new URL(url);
+  const extension = path.extname(pathname) || '.html';
+  const assetName = getName(url, extension);
+  const assetPath = path.posix.join(dirname, assetName);
+  return assetPath;
+};
+
 const loadPage = (pageUrl, outDir = '.') => {
   const resolvedPath = path.resolve(process.cwd(), outDir);
 
@@ -32,36 +50,22 @@ const loadPage = (pageUrl, outDir = '.') => {
 
       const $ = load(data, { baseURI: pageUrl });
 
-      const getSource = (element) => {
-        const $element = $(element);
-        const tagName = $element.prop('tagName');
-        return $element.prop(map[tagName]);
-      };
-
-      const setSource = (element, url) => {
-        const $element = $(element);
-        const tagName = $element.prop('tagName');
-        return $element.attr(map[tagName], url);
-      };
-
       const $assets = $('img[src], link[href], script[src]')
         .filter((_, asset) => {
-          const assetUrl = getSource(asset);
+          const assetUrl = getSource($(asset));
           const { origin } = new URL(pageUrl);
           return isLocalAsset(assetUrl, origin);
         });
 
       assetsUrls = $assets
-        .map((_, asset) => getSource(asset))
+        .map((_, asset) => getSource($(asset)))
         .toArray();
 
       $assets.each((_, asset) => {
-        const url = getSource(asset);
-        const { pathname } = new URL(url);
-        const extension = path.extname(pathname) || '.html';
-        const assetName = getName(url, extension);
-        const assetPath = path.posix.join(dirname, assetName);
-        setSource(asset, assetPath);
+        const $asset = $(asset);
+        const url = getSource($asset);
+        const assetPath = getAssetPath(url, dirname);
+        setSource($asset, assetPath);
       });
 
       log('saving processed html as %s', filename);
