@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import axios from 'axios';
+import client from './httpClient.js';
 import getConfig from './getConfig.js';
 import getName from './getName.js';
 
@@ -13,7 +13,7 @@ const loadAsset = (assetUrl, outDir, overrides = {}) => {
     ...overrides,
   };
 
-  const result = axios.get(assetUrl, config)
+  const result = client.get(assetUrl, config)
     .then(({ data }) => {
       const assetName = getName(assetUrl, extension);
       const assetPath = path.join(outDir, assetName);

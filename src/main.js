@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
-import axios from 'axios';
 import { load } from 'cheerio';
+import client from './httpClient.js';
 import loadAsset from './loadAsset.js';
 import isLocalAsset from './isLocalAsset.js';
 import getName from './getName.js';
@@ -23,7 +23,7 @@ const loadPage = (pageUrl, outDir = '.') => {
 
   let assetsUrls;
 
-  const result = axios.get(pageUrl)
+  const result = client.get(pageUrl)
     .then(({ data }) => {
       const $ = load(data, { baseURI: pageUrl });
 
