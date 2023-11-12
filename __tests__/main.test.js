@@ -40,7 +40,12 @@ beforeAll(async () => {
   ]);
 });
 
-beforeEach(() => {
+beforeEach(async () => {
+  const prefix = path.join(os.tmpdir(), 'page-loader-');
+  tmpDir = await fs.mkdtemp(prefix);
+});
+
+it('saves the page', async () => {
   nock(url)
     .get(pathname).times(2)
     .reply(200, initialHtml)
@@ -50,17 +55,9 @@ beforeEach(() => {
     .reply(200, imageBuffer)
     .get(jsPathname)
     .reply(200, jsBuffer);
-});
 
-beforeEach(async () => {
-  const prefix = path.join(os.tmpdir(), 'page-loader-');
-  tmpDir = await fs.mkdtemp(prefix);
-});
-
-it('saves the page', async () => {
   const result = await loadPage(pageUrl, tmpDir);
   const filepath = path.join(tmpDir, 'ru-hexlet-io-node.html');
-
   expect(result).toEqual({ filepath });
 
   const rawHtml = await fs.readFile(result.filepath, 'utf-8');
@@ -68,7 +65,6 @@ it('saves the page', async () => {
     parser: 'html',
     printWidth: 105,
   });
-
   expect(html).toBe(finalHtml);
 
   const assetsDir = path.join(tmpDir, 'ru-hexlet-io-node_files');
@@ -82,4 +78,22 @@ it('saves the page', async () => {
   expect(assets).toContainEqual(imageBuffer);
   expect(assets).toContainEqual(cssBuffer);
   expect(assets).toContainEqual(jsBuffer);
+});
+
+it('throws when failed to load an asset', async () => {
+  nock(url)
+    .get(pathname)
+    .reply(200, initialHtml)
+    .get(cssPathname)
+    .reply(404);
+  await expect(loadPage(pageUrl, tmpDir)).rejects.toThrow();
+});
+
+it('throws when directory does not exist', async () => {
+  const outDir = path.join(tmpDir, 'path/to/dir');
+  await expect(loadPage(pageUrl, outDir)).rejects.toThrow();
+});
+
+it('throws when url is invalid', async () => {
+  await expect(loadPage('example.org', tmpDir)).rejects.toThrow();
 });
