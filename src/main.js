@@ -84,4 +84,6 @@ const loadPage = (pageUrl, outDir = '.') => {
   return result;
 };
 
-export default loadPage;
+export default (pageUrl, outDir) => new Promise((resolve) => {
+  resolve(loadPage(pageUrl, outDir));
+});
