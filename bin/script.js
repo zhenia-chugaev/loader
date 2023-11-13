@@ -16,7 +16,10 @@ program
 program.action((url, { output }) => {
   loadPage(url, output)
     .then(({ filepath }) => console.log(filepath))
-    .catch((err) => console.error(err.message));
+    .catch((err) => {
+      console.error(`error: ${err.message}`);
+      process.exit(1);
+    });
 });
 
 program.parse(process.argv);

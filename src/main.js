@@ -3,6 +3,7 @@ import path from 'path';
 import { load } from 'cheerio';
 import client from './httpClient.js';
 import log from './logger.js';
+import LoaderError from './LoaderError.js';
 import loadAsset from './loadAsset.js';
 import isLocalAsset from './isLocalAsset.js';
 import getName from './getName.js';
@@ -86,4 +87,6 @@ const loadPage = (pageUrl, outDir = '.') => {
 
 export default (pageUrl, outDir) => new Promise((resolve) => {
   resolve(loadPage(pageUrl, outDir));
+}).catch((err) => {
+  throw new LoaderError(err);
 });
