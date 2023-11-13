@@ -82,16 +82,23 @@ it('saves the page', async () => {
 
 it('throws when failed to load an asset', async () => {
   nock(url)
-    .get(pathname)
+    .get(pathname).times(2)
     .reply(200, initialHtml)
     .get(cssPathname)
-    .reply(404);
-  await expect(loadPage(pageUrl, tmpDir)).rejects.toThrow();
+    .reply(404)
+    .get(imagePathname)
+    .reply(200)
+    .get(jsPathname)
+    .reply(200);
+  await expect(loadPage(pageUrl, tmpDir)).rejects.toThrow(cssPathname);
 });
 
 it('throws when directory does not exist', async () => {
+  nock(url)
+    .get(pathname)
+    .reply(200, initialHtml);
   const outDir = path.join(tmpDir, 'path/to/dir');
-  await expect(loadPage(pageUrl, outDir)).rejects.toThrow();
+  await expect(loadPage(pageUrl, outDir)).rejects.toThrow(outDir);
 });
 
 it('throws when url is invalid', async () => {
