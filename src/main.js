@@ -7,22 +7,7 @@ import LoaderError from './LoaderError.js';
 import loadAsset from './loadAsset.js';
 import isLocalAsset from './isLocalAsset.js';
 import getName from './getName.js';
-
-const map = {
-  IMG: 'src',
-  LINK: 'href',
-  SCRIPT: 'src',
-};
-
-const getSource = ($element) => {
-  const tagName = $element.prop('tagName');
-  return $element.prop(map[tagName]);
-};
-
-const setSource = ($element, url) => {
-  const tagName = $element.prop('tagName');
-  return $element.attr(map[tagName], url);
-};
+import { getSource, setSource } from './source.js';
 
 const getAssetPath = (url, dirname) => {
   const { pathname } = new URL(url);
