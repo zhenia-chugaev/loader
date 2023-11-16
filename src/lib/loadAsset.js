@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
-import client from './httpClient.js';
-import log from './logger.js';
+import client from '../vendor/httpClient.js';
+import log from '../vendor/logger.js';
 import getConfig from './getConfig.js';
 import getName from './getName.js';
 

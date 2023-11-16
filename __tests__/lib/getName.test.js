@@ -1,4 +1,4 @@
-import getName from '../src/getName.js';
+import getName from '../../src/lib/getName.js';
 
 test.each([
   ['https://example.org', 'example-org'],

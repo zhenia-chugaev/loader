@@ -1,14 +1,14 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { load } from 'cheerio';
 import Listr from 'listr';
-import client from './httpClient.js';
-import log from './logger.js';
+import { load } from 'cheerio';
 import LoaderError from './LoaderError.js';
-import loadAsset from './loadAsset.js';
-import isLocalAsset from './isLocalAsset.js';
-import getName from './getName.js';
-import { getSource, setSource } from './source.js';
+import client from './vendor/httpClient.js';
+import log from './vendor/logger.js';
+import loadAsset from './lib/loadAsset.js';
+import isLocalAsset from './lib/isLocalAsset.js';
+import getName from './lib/getName.js';
+import { getSource, setSource } from './lib/source.js';
 
 const getAssetPath = (url, dirname) => {
   const { pathname } = new URL(url);
