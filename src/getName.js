@@ -23,7 +23,7 @@ const getName = (url, suffix = '') => {
 
   const name = [
     hostname,
-    pathname === '/' ? '' : pathname,
+    pathname.endsWith('/') ? pathname.slice(0, -1) : pathname,
     search,
   ].join('').replaceAll(regexp, sep);
 

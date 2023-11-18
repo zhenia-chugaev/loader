@@ -4,6 +4,7 @@ test.each([
   ['https://example.org', 'example-org'],
   ['https://ru.hexlet.io/my', 'ru-hexlet-io-my'],
   ['http://www.example.org:443/path/to?foo=bar#hash', 'www-example-org-path-to-foo-bar'],
+  ['https://mozilla.org/en-US/', 'mozilla-org-en-US'],
 ])('name construction', (url, expected) => {
   expect(getName(url)).toBe(expected);
 });
