@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { load } from 'cheerio';
+import Listr from 'listr';
 import client from './httpClient.js';
 import log from './logger.js';
 import LoaderError from './LoaderError.js';
@@ -17,7 +18,7 @@ const getAssetPath = (url, dirname) => {
   return assetPath;
 };
 
-const loadPage = (pageUrl, outDir = '.') => {
+const loadPage = (pageUrl, outDir = '.', options = {}) => {
   const resolvedPath = path.resolve(process.cwd(), outDir);
 
   const filename = getName(pageUrl, '.html');
@@ -62,16 +63,28 @@ const loadPage = (pageUrl, outDir = '.') => {
       log('creating assets folder (%s)', dirname);
       return fs.mkdir(assetsPath);
     })
-    .then(() => Promise.all(
-      assetsUrls.map((url) => loadAsset(url, assetsPath)),
-    ))
+    .then(() => {
+      const tasks = assetsUrls.map((url) => ({
+        title: url,
+        task: (_, task) => loadAsset(url, assetsPath).catch(() => {
+          task.skip('warning: the asset could not been loaded');
+        }),
+      }));
+      const listr = new Listr(tasks, {
+        concurrent: true,
+        exitOnError: false,
+        renderer: 'silent',
+        ...options,
+      });
+      return listr.run();
+    })
     .then(() => ({ filepath }));
 
   return result;
 };
 
-export default (pageUrl, outDir) => new Promise((resolve) => {
-  resolve(loadPage(pageUrl, outDir));
+export default (pageUrl, outDir, options) => new Promise((resolve) => {
+  resolve(loadPage(pageUrl, outDir, options));
 }).catch((err) => {
   throw new LoaderError(err);
 });

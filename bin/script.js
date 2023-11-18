@@ -14,7 +14,10 @@ program
   .allowExcessArguments(false);
 
 program.action((url, { output }) => {
-  loadPage(url, output)
+  const options = {
+    renderer: 'default',
+  };
+  loadPage(url, output, options)
     .then(({ filepath }) => console.log(filepath))
     .catch((err) => {
       console.error(`error: ${err.message}`);
