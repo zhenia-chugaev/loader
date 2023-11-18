@@ -18,7 +18,9 @@ program.action((url, { output }) => {
     renderer: 'default',
   };
   loadPage(url, output, options)
-    .then(({ filepath }) => console.log(filepath))
+    .then(({ filepath }) => console.log(
+      `Page was successfully downloaded into '${filepath}'`,
+    ))
     .catch((err) => {
       console.error(`error: ${err.message}`);
       process.exit(1);
