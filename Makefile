@@ -20,6 +20,9 @@ debug:
 coverage:
 	npx jest --coverage --coverage-provider=v8
 
+uninstall:
+	npm unlink -g @hexlet/code
+
 publish:
 	npm publish --dry-run
 
