@@ -19,6 +19,8 @@ const getAssetPath = (url, dirname) => {
 };
 
 const loadPage = (pageUrl, outDir = '.', options = {}) => {
+  log('got page url %s and output directory %s', pageUrl, outDir);
+
   const resolvedPath = path.resolve(process.cwd(), outDir);
 
   const filename = getName(pageUrl, '.html');
