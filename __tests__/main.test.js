@@ -4,7 +4,7 @@ import path from 'path';
 import nock from 'nock';
 import { format } from 'prettier';
 import readFixture from '../utils/readFixture.js';
-import loadPage from '../src/main.js';
+import loadPage from '../index.js';
 
 nock.disableNetConnect();
 
